@@ -1,0 +1,103 @@
+-- Realização das Queries
+
+-- Recuperações simples com SELECT Statement;
+-- 1 - Recupera o nome, o tipo de cliente (PF ou PJ) e o contato de todos os clientes
+SELECT client_Name, client_Type, client_Contact
+FROM T_CLIENT;
+
+-- Recupera o modelo, a placa e o nome de todos os veículos
+SELECT vehicle_Model, vehicle_Plate, vehicle_Name
+FROM T_VEHICLE;
+
+-- Recupera o nome e a especialidade de todos os mecânicos
+SELECT mechanic_Name, mechanic_Specialty
+FROM T_MECHANIC;
+
+
+-- 2 - Filtros com WHERE Statement
+-- Recupera os centros automotivos localizados em um endereço específico
+SELECT *
+FROM T_AUTOMOTIVE_CENTER
+WHERE aut_Center_Address = 'Rua das Oficinas, 123';
+
+-- Recupera os veículos do tipo "Carro":
+SELECT *
+FROM T_VEHICLE
+WHERE vehicle_Model = 'Carro';
+
+-- 3 - Crie expressões para gerar atributos derivados;
+-- Calcula o valor total dos serviços com um desconto de 10%
+SELECT 
+    id_OS,
+    os_Value_Service,
+    os_Value_Service * 0.9 AS Valor_Com_Desconto -- Atributo derivado
+FROM T_ORDER_SERVICE;
+
+-- Calcula o valor total pago e o valor pendente:
+SELECT 
+    id_Payment,
+    payment_Amount,
+    payment_Status,
+    CASE 
+        WHEN payment_Status = 'Pago' THEN payment_Amount
+        ELSE 0
+    END AS Valor_Pago, -- Atributo derivado
+    CASE 
+        WHEN payment_Status = 'Pendente' THEN payment_Amount
+        ELSE 0
+    END AS Valor_Pendente -- Atributo derivado
+FROM T_PAYMENT;
+
+-- 4 - Defina ordenações dos dados com ORDER BY
+-- Ordena os veículos pela quilometragem em ordem decrescente:
+SELECT *
+FROM T_VEHICLE
+ORDER BY vehicle_Km DESC;
+
+-- Ordena os pagamentos pela data do pagamento (do mais recente para o mais antigo)
+SELECT *
+FROM T_PAYMENT
+ORDER BY payment_Date DESC;
+
+-- 5 - Condições de filtros aos grupos – HAVING Statement
+-- Filtra os métodos de pagamento com valor total pago maior que 500
+SELECT 
+    payment_Method,
+    SUM(payment_Amount) AS Total_Pago
+FROM T_PAYMENT
+WHERE payment_Status = 'Pago'
+GROUP BY payment_Method
+HAVING SUM(payment_Amount) > 500;
+
+-- Filtra as ordens de serviço com mais de 1 veículo associado:
+SELECT 
+    id_OS,
+    COUNT(id_Vehicle) AS Total_Veiculos
+FROM T_ORDER_SERVICE_VEHICLE
+GROUP BY id_OS
+HAVING COUNT(id_Vehicle) > 1;
+
+-- 6 - Crie junções entre tabelas para fornecer uma perspectiva mais complexa dos dados
+-- Recupera os clientes e os veículos associados a eles:
+SELECT 
+    C.client_Name,
+    V.vehicle_Name,
+    V.vehicle_Plate
+FROM T_CLIENT C
+INNER JOIN T_VEHICLE V ON C.id_Client = V.id_Client;
+
+-- Recupera todas as ordens de serviço e seus pagamentos (se existirem)
+SELECT 
+    OS.os_Number,
+    OS.os_Value_Service,
+    P.payment_Amount,
+    P.payment_Status
+FROM T_ORDER_SERVICE OS
+LEFT JOIN T_PAYMENT P ON OS.id_OS = P.id_OS;
+
+-- Recupera todos os mecânicos e os serviços em que estão envolvidos (se existirem)
+SELECT 
+    M.mechanic_Name,
+    SM.id_OS
+FROM T_MECHANIC M
+RIGHT JOIN T_SERVICE_MECHANIC SM ON M.id_Mechanic = SM.id_Mechanic;

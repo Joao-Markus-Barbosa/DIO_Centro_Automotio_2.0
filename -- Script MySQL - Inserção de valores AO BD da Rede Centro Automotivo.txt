@@ -1,0 +1,43 @@
+-- Inserção de valores em AUTOMOTIVE CENTER
+INSERT INTO T_AUTOMOTIVE_CENTER (aut_Center_Social_Name, aut_Center_CNPJ, aut_Center_Address, aut_Center_Contact)
+VALUES 
+    ('AutoCenter A', '12345678000101', 'Rua das Oficinas, 123', '11987654321'),
+    ('AutoCenter B', '12345678000102', 'Avenida dos Carros, 456', '11987654322'),
+    ('AutoCenter C', '12345678000103', 'Praça das Motos, 789', '11987654323');
+    
+INSERT INTO T_CLIENT (client_Name, client_Address, client_Contact, client_Type, client_CPF, client_CNPJ)
+VALUES 
+    ('João Silva', 'Rua das Flores, 123', '11987654321', 'PF', '12345678901', NULL),
+    ('Maria Souza', 'Avenida dos Sonhos, 456', '11987654322', 'PF', '12345678902', NULL),
+    ('Empresa XYZ', 'Rua dos Negócios, 789', '11987654323', 'PJ', NULL, '12345678000199');
+    
+INSERT INTO T_VEHICLE (id_Aut_Center, id_Client, vehicle_Model, vehicle_Plate, vehicle_Name, vehicle_Km)
+VALUES 
+    (1, 1, 'Carro', 'ABC1234', 'Fusca', 15000.50),
+    (2, 2, 'Moto', 'XYZ9876', 'Honda CG', 5000.75),
+    (3, 3, 'Caminhonete', 'DEF5678', 'Toyota Hilux', 30000.00);
+    
+INSERT INTO T_MECHANIC (mechanic_Name, mechanic_Specialty, mechanic_Address)
+VALUES 
+    ('Carlos Oliveira', 'Motor', 'Rua dos Mecânicos, 123'),
+    ('Ana Santos', 'Suspensão', 'Avenida das Oficinas, 456'),
+    ('Pedro Costa', 'Elétrica', 'Praça das Ferramentas, 789');
+    
+INSERT INTO T_ORDER_SERVICE (os_Number, os_Status, os_Description_Service, os_Date_Emission, os_Date_Conclusion, os_Value_Service)
+VALUES 
+    (1001, 'Em processo', 'Troca de óleo', '2023-10-01', NULL, 150.00),
+    (1002, 'Serviço concluído', 'Reparo no motor', '2023-09-25', '2023-09-30', 500.00),
+    (1003, 'Serviço cancelado', 'Alinhamento e balanceamento', '2023-10-05', NULL, 200.00);
+    
+INSERT INTO T_PAYMENT (payment_Amount, payment_Method, payment_Status, payment_Date, id_OS)
+VALUES 
+    (150.00, 'Cartão de Crédito', 'Pago', '2023-10-02', 1),
+    (500.00, 'Dinheiro', 'Pago', '2023-09-30', 2),
+    (200.00, NULL, 'Pendente', NULL, 3);
+    
+SELECT * FROM T_AUTOMOTIVE_CENTER;
+SELECT * FROM T_CLIENT;
+SELECT * FROM T_VEHICLE;
+SELECT * FROM T_MECHANIC;
+SELECT * FROM T_ORDER_SERVICE;
+SELECT * FROM T_PAYMENT;

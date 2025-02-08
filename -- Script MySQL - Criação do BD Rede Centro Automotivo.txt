@@ -1,0 +1,126 @@
+-- Criação do bando de dados para cenário de Oficina
+CREATE DATABASE oficina;
+use oficina;
+
+show databases;
+show tables;
+
+DROP TABLE IF EXISTS T_ORDER_SERVICE_VEHICLE CASCADE;
+DROP TABLE IF EXISTS T_AUT_CENTER_VEHICLE CASCADE;
+DROP TABLE IF EXISTS T_SERVICE_MECHANIC CASCADE;
+DROP TABLE IF EXISTS T_CLIENT_AUT_CENTER CASCADE;
+DROP TABLE IF EXISTS T_PAYMENT CASCADE;
+DROP TABLE IF EXISTS T_ORDER_SERVICE CASCADE;
+DROP TABLE IF EXISTS T_VEHICLE CASCADE;
+DROP TABLE IF EXISTS T_MECHANIC CASCADE;
+DROP TABLE IF EXISTS T_CLIENT CASCADE;
+DROP TABLE IF EXISTS T_AUTOMOTIVE_CENTER CASCADE;
+
+
+
+CREATE TABLE T_AUTOMOTIVE_CENTER (
+    id_Aut_Center INT PRIMARY KEY AUTO_INCREMENT,
+    aut_Center_Social_Name VARCHAR(45) NOT NULL,
+    aut_Center_CNPJ CHAR(14) NOT NULL UNIQUE, 
+    aut_Center_Address VARCHAR(255) NOT NULL,
+    aut_Center_Contact CHAR(11) NOT NULL
+);
+
+
+CREATE TABLE T_CLIENT (
+    id_Client INT PRIMARY KEY AUTO_INCREMENT,
+    client_Name VARCHAR(45) NOT NULL,
+    client_Address VARCHAR(255) NOT NULL,
+    client_Contact CHAR(11) NOT NULL,
+    client_Type ENUM('PF', 'PJ') NOT NULL, 
+    client_CPF CHAR(11) UNIQUE NULL,  
+    client_CNPJ CHAR(14) UNIQUE NULL,
+    CONSTRAINT check_client_type CHECK (
+        (client_Type = 'PF' AND client_CPF IS NOT NULL AND client_CNPJ IS NULL) OR
+        (client_Type = 'PJ' AND client_CNPJ IS NOT NULL AND client_CPF IS NULL)
+    )
+);
+
+
+CREATE TABLE T_VEHICLE (
+    id_Vehicle INT PRIMARY KEY AUTO_INCREMENT,
+    id_Aut_Center INT NOT NULL,
+    id_Client INT NOT NULL,
+    vehicle_Model ENUM('Carro', 'Caminhonete', 'Moto') DEFAULT 'Carro',
+    vehicle_Plate VARCHAR(15) NOT NULL UNIQUE, 
+    vehicle_Name VARCHAR(45) NOT NULL,
+    vehicle_Km DECIMAL(10,2) NOT NULL
+);
+
+
+CREATE TABLE T_MECHANIC (
+    id_Mechanic INT PRIMARY KEY AUTO_INCREMENT,
+    mechanic_Name VARCHAR(45) NOT NULL,
+    mechanic_Specialty VARCHAR(45) NOT NULL,
+    mechanic_Address VARCHAR(255) NOT NULL
+);
+
+
+CREATE TABLE T_ORDER_SERVICE (
+    id_OS INT PRIMARY KEY AUTO_INCREMENT,
+    os_Number INT NOT NULL,
+    os_Status ENUM('Serviço concluído', 'Serviço cancelado', 'Em processo') DEFAULT 'Em processo' NOT NULL,
+    os_Description_Service VARCHAR(255) NOT NULL,
+    os_Date_Emission DATE NOT NULL,
+    os_Date_Conclusion DATE NULL, 
+    os_Value_Service DECIMAL(10,2) NOT NULL
+);
+
+
+CREATE TABLE T_PAYMENT (
+    id_Payment INT PRIMARY KEY AUTO_INCREMENT,
+    payment_Amount DECIMAL(10,2) NOT NULL,  -- Valor do pagamento
+    payment_Method ENUM('Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'PIX', 'Boleto') NULL, -- (pode ser nula se o pagamento ainda não foi realizado),  
+    payment_Status ENUM('Pago', 'Pendente', 'Cancelado') DEFAULT 'Pendente' NOT NULL, 
+    payment_Date DATE NULL,  -- Data do pagamento (pode ser nula se o pagamento ainda não foi realizado)
+    id_OS INT NOT NULL,  -- Chave estrangeira para a Ordem de Serviço
+    FOREIGN KEY (id_OS) REFERENCES T_ORDER_SERVICE(id_OS)
+);
+
+-- Início relacionamento N:M
+
+create table T_CLIENT_AUT_CENTER(
+id_Client int,
+id_Aut_Center int,
+primary key(id_Client, id_Aut_Center),
+foreign key (id_Client) references T_CLIENT(id_Client),
+foreign key (id_Aut_Center) references  T_AUTOMOTIVE_CENTER (id_Aut_Center)
+
+);
+
+CREATE TABLE T_SERVICE_MECHANIC (
+    id_OS INT NOT NULL,
+    id_Mechanic INT NOT NULL,
+    PRIMARY KEY (id_OS, id_Mechanic),
+    FOREIGN KEY (id_OS) REFERENCES T_ORDER_SERVICE(id_OS),
+    FOREIGN KEY (id_Mechanic) REFERENCES T_MECHANIC(id_Mechanic)
+);
+
+create table T_AUT_CENTER_VEHICLE(
+	id_Vehicle int,
+    id_Aut_Center int,
+    primary key (id_Vehicle,id_Aut_Center),
+    foreign key (id_Vehicle) references T_VEHICLE(id_Vehicle),
+    foreign key (id_Aut_Center) references T_AUTOMOTIVE_CENTER(id_Aut_Center)
+);
+
+create table T_ORDER_SERVICE_VEHICLE(
+	id_OS int,
+    id_Vehicle int,
+    primary key(id_OS, id_Vehicle),
+    foreign key (id_OS) references T_ORDER_SERVICE(id_OS),
+    foreign key (id_Vehicle) references T_VEHICLE(id_Vehicle)
+);
+-- Fim relacionamento N:M
+
+ALTER TABLE T_AUTOMOTIVE_CENTER AUTO_INCREMENT = 1;
+ALTER TABLE T_CLIENT AUTO_INCREMENT = 1;
+ALTER TABLE T_VEHICLE AUTO_INCREMENT = 1;
+ALTER TABLE T_MECHANIC AUTO_INCREMENT = 1;
+ALTER TABLE T_ORDER_SERVICE AUTO_INCREMENT = 1;
+ALTER TABLE T_PAYMENT AUTO_INCREMENT = 1;
